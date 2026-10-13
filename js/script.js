@@ -22,7 +22,7 @@ const CONFIG = {
       text: "A new name on the team list. I had no idea it would become my favourite name." },
     { date: "Early 2026", title: "Our first real conversation", photo: "pic3",
       text: "It started with work and somehow never ended. I still remember how easy it felt to talk to you." },
-    { date: "2026", title: "Coffee breaks became our thing", photo: "pic4",
+    { date: "2026", title: "Tea breaks became our thing", photo: "pic4",
       text: "Suddenly every break was the best part of my day, because you were in it." },
     { date: "2026", title: "The day I knew", photo: "pic5",
       text: "Somewhere between the meetings and the laughter, I realised I was falling for you." },
@@ -33,8 +33,8 @@ const CONFIG = {
   reasons: [
     "Your smile makes even the longest workday feel short.",
     "You laugh at my jokes, even the really bad ones.",
-    "You make Mondays bearable. That is a superpower.",
     "Your kindness to everyone around you.",
+    "You make Mondays bearable. That is a superpower.",
     "The way you say my name.",
     "You are smart, and you make me want to be better.",
     "You care about the little things, and about me.",
@@ -46,7 +46,8 @@ const CONFIG = {
     { q: "When did you join my project?", options: ["December 2025", "January 2026", "March 2026", "I don't remember"], answer: 1 },
     { q: "What do I always call you?", options: ["Baby", "Cutie", "Kuku", "Boss"], answer: 2 },
     { q: "What was the first thing I noticed about you?", options: ["Your smile", "Your laptop stickers", "Your voice", "Everything"], answer: 3 },
-    { q: "Who is the luckiest person in this relationship?", options: ["Kuku", "Both of us", "Nobody", "Nishant, obviously"], answer: 3 }
+    { q: "Who is the luckiest person ?", options: ["Kuku", "Both of us", "Nobody", "Nishant, obviously"], answer: 3 },
+    { q: "Do you remember what you told me on after party when I drop you room and leaving?", options: ["NO", "Achha ladka h tu", "room jake call karna", "room jao"], answer: 1 }
   ],
 
   wheelAnswers: [
@@ -72,7 +73,7 @@ Happy birthday to the most beautiful person I know.
 
 When you joined our project in January, I thought I was just getting a new teammate. I never imagined you would become the best part of every single day.
 
-Thank you for your smile, your patience, your laughter, and for making ordinary days feel special. You turned meetings into memories and coffee breaks into moments I look forward to.
+Thank you for your smile, your patience, your laughter, and for making ordinary days feel special. You turned meetings into memories and tea breaks into moments I look forward to.
 
 This is your first birthday with me, and I hope it is the first of many. Whatever this new year brings, I want to be right there beside you, cheering the loudest.
 
