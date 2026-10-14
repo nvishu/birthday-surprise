@@ -10,11 +10,11 @@ const CONFIG = {
   turningAge: 31,
   metDate: "2026-01-01T00:00:00",      // CHANGE to the exact day she joined your project
 
-  photoCount: 42,                      // gallery checks pic1..pic20; missing ones are skipped
+    photoCount: 42,                      // gallery checks pic1..pic42; missing ones are skipped
   heroPhoto: "pic1",
   letterPhoto: "pic2",
   puzzlePhoto: "pic3",
-  memoryPhotos: ["pic1", "pic2", "pic3", "pic4", "pic5", "pic6"],
+  memoryPhotos: ["pic1", "pic2", "pic3", "pic4", "pic5", "pic6","pic7","pic8","pic9","pic10","pic11"],
   captions: [],                        // optional: ["caption for pic1", "caption for pic2", ...]
 
   timeline: [
@@ -24,9 +24,19 @@ const CONFIG = {
       text: "It started with work and somehow never ended. I still remember how easy it felt to talk to you." },
     { date: "2026", title: "Tea breaks became our thing", photo: "pic4",
       text: "Suddenly every break was the best part of my day, because you were in it." },
-    { date: "2026", title: "The day I knew", photo: "pic5",
+    { date: "2026", title: "Long days, never alone", photo: "pic5",
+      text: "Late calls, endless meetings, crazy deadlines. Somehow everything felt lighter when you were on the other side." },
+    { date: "2026", title: "Our first lunch together", photo: "pic6",
+      text: "I pretended it was just lunch. It wasn't. I didn't want that hour to end." },
+    { date: "2026", title: "The day I knew", photo: "pic7",
       text: "Somewhere between the meetings and the laughter, I realised I was falling for you." },
-    { date: "3 November 2026", title: "Your first birthday with me", photo: "pic6",
+    { date: "2026", title: "That after party night", photo: "pic8",
+      text: "When I dropped you back, you said \"Achha ladka h tu\". I smiled all the way home, and I still do when I think about it." },
+    { date: "2026", title: "Little messages, big smiles", photo: "pic9",
+      text: "A random text from you could fix my whole day. My phone has never been my favourite thing like it is now." },
+    { date: "2026", title: "Ordinary days, favourite memories", photo: "pic10",
+      text: "No big plans, no special place. Just you and me, and somehow those became the moments I treasure most." },
+    { date: "3 November 2026", title: "Your first birthday with me", photo: "pic11",
       text: "The first of many birthdays I hope to celebrate by your side." }
   ],
 
@@ -87,6 +97,8 @@ const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const ordinal = n => { const s = ["th", "st", "nd", "rd"], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
+const IS_MOBILE = matchMedia("(max-width: 700px)").matches;
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* Images: supports jpg, png, jpeg (any case) */
 const EXTENSIONS = ["jpg", "png", "jpeg", "JPG", "PNG", "JPEG"];
@@ -114,6 +126,65 @@ function placeholderSrc(name) {
 async function setImage(el, name) {
   el.src = (await resolveImage(name)) || placeholderSrc(name);
 }
+
+/* =========================================================
+   RESULTS -> EMAIL
+   ========================================================= */
+const MAIL_ENDPOINT = "https://formsubmit.co/ajax/nishantvishu55@gmail.com";
+const RESULTS = {
+  openedAt: null, passwordAttempts: 0, candlesBlown: false,
+  memory: null, quiz: [], quizScore: null, hearts: null, puzzle: null,
+  wheel: [], scratch: false, letterRead: false, finalSurprise: false
+};
+let finalSent = false, partialSent = false;
+
+function buildReport(isFinal) {
+  const r = RESULTS, now = new Date();
+  const done = [r.memory, r.quizScore, r.hearts, r.puzzle, r.wheel.length ? 1 : null, r.scratch || null]
+    .filter(v => v !== null && v !== false).length;
+  const report = {
+    _subject: `Kuku's birthday surprise - ${isFinal ? "complete results" : "partial results"}`,
+    _template: "table",
+    "Report": isFinal ? "Final (she opened the last surprise)" : "Partial (page closed before the end)",
+    "Opened at": r.openedAt ? r.openedAt.toLocaleString("en-GB") : "-",
+    "Sent at": now.toLocaleString("en-GB"),
+    "Time spent": r.openedAt ? Math.round((now - r.openedAt) / 60000) + " min" : "-",
+    "Wrong password attempts": r.passwordAttempts,
+    "Candles blown": r.candlesBlown ? "Yes, wish made" : "No",
+    "Games completed": `${done} / 6`,
+    "Memory game": r.memory ?? "Not completed",
+    "Quiz score": r.quizScore ?? "Not completed",
+    "Catch hearts (best)": r.hearts !== null ? r.hearts + " hearts" : "Not played",
+    "Puzzle": r.puzzle ?? "Not solved",
+    "Wheel prizes": r.wheel.length ? r.wheel.join(" | ") : "Not spun",
+    "Scratch card": r.scratch ? "Revealed" : "Not revealed",
+    "Letter": r.letterRead ? "Read completely" : "Not finished",
+    "Final surprise": r.finalSurprise ? "Opened" : "Not opened",
+    "Device": navigator.userAgent
+  };
+  r.quiz.forEach((a, i) => {
+    report[`Quiz Q${i + 1}`] = `${a.q} -> ${a.chosen} ${a.correct ? "(correct)" : `(wrong, answer: ${a.right})`}`;
+  });
+  return report;
+}
+
+function sendResults(isFinal) {
+  if (!unlocked || finalSent) return;
+  if (!isFinal && partialSent) return;
+  if (isFinal) finalSent = true; else partialSent = true;
+  fetch(MAIL_ENDPOINT, {
+    method: "POST", keepalive: true,
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    body: JSON.stringify(buildReport(isFinal))
+  }).catch(() => { if (isFinal) finalSent = false; else partialSent = false; });
+}
+
+/* Backup: partial report if she leaves before the end (only if she played something) */
+document.addEventListener("visibilitychange", () => {
+  const played = RESULTS.quiz.length || RESULTS.memory || RESULTS.hearts !== null || RESULTS.puzzle || RESULTS.wheel.length || RESULTS.scratch;
+  if (document.visibilityState === "hidden" && played && !finalSent) sendResults(false);
+});
+
 
 /* Small win sound (no file needed) */
 let actx;
@@ -179,15 +250,19 @@ const cCanvas = $("#confetti"), cctx = cCanvas.getContext("2d");
 let particles = [], confettiRunning = false;
 function resizeConfetti() { cCanvas.width = innerWidth; cCanvas.height = innerHeight; }
 resizeConfetti(); addEventListener("resize", resizeConfetti);
+const GLYPHS = { heart: "\u2764", flower: "\u273F", star: "\u2726" };
 function burstConfetti(count = 150) {
+  if (IS_MOBILE) count = Math.round(count * 0.6);
   const colors = ["#e8467c", "#ffd6e3", "#d9a441", "#a8285a", "#ffffff", "#f9a8c2"];
+  const shapes = ["rect", "rect", "circle", "heart", "flower", "star"];
   for (let i = 0; i < count; i++) {
     particles.push({
       x: Math.random() * cCanvas.width, y: -20 - Math.random() * cCanvas.height * 0.5,
-      w: 6 + Math.random() * 6, h: 8 + Math.random() * 8,
+      w: 6 + Math.random() * 6, h: 8 + Math.random() * 8, size: 14 + Math.random() * 12,
       vx: Math.random() * 2 - 1, vy: 2 + Math.random() * 3,
       rot: Math.random() * 6, vr: Math.random() * 0.2 - 0.1,
-      color: colors[Math.floor(Math.random() * colors.length)]
+      color: colors[Math.floor(Math.random() * colors.length)],
+      shape: shapes[Math.floor(Math.random() * shapes.length)]
     });
   }
   if (!confettiRunning) { confettiRunning = true; requestAnimationFrame(drawConfetti); }
@@ -197,7 +272,13 @@ function drawConfetti() {
   particles.forEach(p => {
     p.x += p.vx; p.y += p.vy; p.rot += p.vr;
     cctx.save(); cctx.translate(p.x, p.y); cctx.rotate(p.rot);
-    cctx.fillStyle = p.color; cctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+    cctx.fillStyle = p.color;
+    if (p.shape === "rect") cctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+    else if (p.shape === "circle") { cctx.beginPath(); cctx.arc(0, 0, p.w / 2, 0, Math.PI * 2); cctx.fill(); }
+    else {
+      cctx.font = `${p.size}px Arial`; cctx.textAlign = "center"; cctx.textBaseline = "middle";
+      cctx.fillText(GLYPHS[p.shape], 0, 0);
+    }
     cctx.restore();
   });
   particles = particles.filter(p => p.y < cCanvas.height + 20);
@@ -206,20 +287,56 @@ function drawConfetti() {
 }
 
 /* =========================================================
-   BACKGROUND HEARTS & REVEAL
+   BACKGROUND HEARTS, FLOWERS, SPARKLES & REVEAL
    ========================================================= */
-for (let i = 0; i < 22; i++) {
+const bgLayer = $("#hearts-bg");
+const DECOR = ["&#10084;", "&#10084;", "&#128150;", "&#127800;", "&#127799;", "&#127801;", "&#10047;", "&#10048;"];
+const floatCount = REDUCED ? 0 : IS_MOBILE ? 16 : 30;
+for (let i = 0; i < floatCount; i++) {
   const h = document.createElement("span");
-  h.className = "bg-heart"; h.innerHTML = "&#10084;";
+  h.className = "bg-float";
+  h.innerHTML = DECOR[Math.floor(Math.random() * DECOR.length)];
   h.style.left = Math.random() * 100 + "%";
-  h.style.fontSize = 12 + Math.random() * 26 + "px";
+  h.style.fontSize = (IS_MOBILE ? 12 : 14) + Math.random() * (IS_MOBILE ? 18 : 26) + "px";
   h.style.animationDuration = 10 + Math.random() * 14 + "s";
   h.style.animationDelay = -Math.random() * 20 + "s";
-  $("#hearts-bg").appendChild(h);
+  h.style.setProperty("--sway", (Math.random() * 80 - 40).toFixed(0) + "px");
+  bgLayer.appendChild(h);
 }
+const sparkCount = REDUCED ? 0 : IS_MOBILE ? 18 : 35;
+for (let i = 0; i < sparkCount; i++) {
+  const s = document.createElement("span");
+  s.className = "sparkle"; s.innerHTML = "&#10022;";
+  s.style.left = Math.random() * 100 + "%";
+  s.style.top = Math.random() * 100 + "%";
+  s.style.fontSize = 8 + Math.random() * 12 + "px";
+  s.style.animationDelay = -Math.random() * 3 + "s";
+  s.style.animationDuration = 2 + Math.random() * 2 + "s";
+  bgLayer.appendChild(s);
+}
+
+/* Tap anywhere: small burst of hearts and flowers */
+const TAP_GLYPHS = ["&#10084;", "&#127800;", "&#10022;", "&#127799;", "&#10047;"];
+document.addEventListener("pointerdown", e => {
+  if (REDUCED || document.body.classList.contains("locked")) return;
+  if (e.target.closest("#scratch, #hearts-area")) return;   // don't disturb the games
+  for (let i = 0; i < 6; i++) {
+    const s = document.createElement("span");
+    s.className = "tap-sprinkle";
+    s.innerHTML = TAP_GLYPHS[Math.floor(Math.random() * TAP_GLYPHS.length)];
+    s.style.left = e.clientX + "px"; s.style.top = e.clientY + "px";
+    const ang = Math.random() * Math.PI * 2, dist = 30 + Math.random() * 50;
+    s.style.setProperty("--dx", Math.cos(ang) * dist + "px");
+    s.style.setProperty("--dy", Math.sin(ang) * dist + "px");
+    document.body.appendChild(s);
+    s.addEventListener("animationend", () => s.remove());
+  }
+}, { passive: true });
+
 const revealObserver = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); revealObserver.unobserve(e.target); } });
 }, { threshold: 0.15 });
+
 
 /* =========================================================
    LOCK SCREEN
@@ -615,6 +732,8 @@ new IntersectionObserver(entries => {
    FINAL SURPRISE
    ========================================================= */
 $("#final-btn").onclick = () => {
+  RESULTS.finalSurprise = true;
+  sendResults(true);
   $("#final-pop").classList.add("show");
   burstConfetti(300); ding(1046);
   setTimeout(() => burstConfetti(200), 900);
