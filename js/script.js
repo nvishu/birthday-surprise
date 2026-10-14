@@ -10,7 +10,7 @@ const CONFIG = {
   turningAge: 31,
   metDate: "2026-01-01T00:00:00",      // CHANGE to the exact day she joined your project
 
-  photoCount: 20,                      // gallery checks pic1..pic20; missing ones are skipped
+  photoCount: 42,                      // gallery checks pic1..pic20; missing ones are skipped
   heroPhoto: "pic1",
   letterPhoto: "pic2",
   puzzlePhoto: "pic3",
