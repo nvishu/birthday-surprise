@@ -55,20 +55,20 @@ const CONFIG = {
     { q: "Where did we first meet?", options: ["In a cafe", "In the office", "Through friends", "On Instagram"], answer: 1 },
     { q: "When did you join my project?", options: ["December 2025", "January 2026", "March 2026", "I don't remember"], answer: 1 },
     { q: "What do I always call you?", options: ["Baby", "Cutie", "Kuku", "Boss"], answer: 2 },
-    { q: "What was the first thing I noticed about you?", options: ["Your smile", "Your laptop stickers", "Your voice", "Everything"], answer: 3 },
+    { q: "What was the things which I loved about you?", options: ["Your smile", "Your laptop stickers", "Your voice", "Everything"], answer: 3 },
     { q: "Who is the luckiest person ?", options: ["Kuku", "Both of us", "Nobody", "Nishant, obviously"], answer: 3 },
     { q: "Do you remember what you told me on after party when I drop you room and leaving?", options: ["NO", "Achha ladka h tu", "room jake call karna", "room jao"], answer: 1 }
   ],
 
   wheelAnswers: [
-    "Nishant has to sing for you. Badly. In public.",
-    "You win unlimited rights to steal Nishant's fries.",
+    "Nishant will do all the task whatever you ask for today",
+    "You win unlimited rights to steal Nishant's times.",
     "Nishant must agree with you in every argument for 24 hours.",
     "Nishant changes his Teams status to 'Kuku is the best' for a whole day.",
     "Congratulations, you won... more Nishant. No refunds, no returns.",
     "Nishant must text you 'You were right' every day for a week.",
     "Your prize: a hug so long it becomes awkward.",
-    "Nishant will do a dramatic slow-motion walk whenever you say so.",
+    "Nishant will ask you out for whole day, with most beautiful way.",
     "Today's forecast: 100% chance of Nishant being annoying.",
     "You are officially the boss. (Nishant never was.)",
     "Nishant must laugh at all your jokes today. He already does anyway.",
@@ -81,9 +81,11 @@ const CONFIG = {
 
 Happy birthday to the most beautiful person I know.
 
-When you joined our project in January, I thought I was just getting a new teammate. I never imagined you would become the best part of every single day.
+When you joined our project in January, I thought I was just getting a new teammate. I never imagined you would become the best part of every single day of my life.
 
-Thank you for your smile, your patience, your laughter, and for making ordinary days feel special. You turned meetings into memories and tea breaks into moments I look forward to.
+Thank you for your beautiful smile, your patience, your laughter, and for making ordinary days feel special. You turned meetings into memories and tea breaks into moments I look forward to.
+
+I love the way you asking my name, enjoy your day!
 
 This is your first birthday with me, and I hope it is the first of many. Whatever this new year brings, I want to be right there beside you, cheering the loudest.
 
