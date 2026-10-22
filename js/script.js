@@ -741,3 +741,241 @@ $("#final-btn").onclick = () => {
   setTimeout(() => burstConfetti(200), 900);
 };
 $("#final-pop").onclick = () => $("#final-pop").classList.remove("show");
+/* =========================================================
+   V2 UPGRADE: gates, page transitions, polish
+   Paste once at the END of script.js
+   ========================================================= */
+(() => {
+  /* ---------- EDIT GATE MESSAGES HERE ---------- */
+  const GATES = {
+    story:   { icon: "&#10084;", title: "Once upon a time...",
+               text: "...on an ordinary project, in an ordinary office, something extraordinary began.",
+               button: "Open our story" },
+    gallery: { icon: "&#10047;", title: "Little moments, kept forever",
+               text: "Behind this gate are the moments I never want to forget.",
+               button: "Show me our moments" },
+    reasons: { icon: "&#9733;", title: "I tried to count...",
+               text: "...all the reasons I love you. I ran out of cards before I ran out of reasons.",
+               button: "Open the reasons" },
+    games:   { icon: "&#10022;", title: "Ready to play, birthday girl?",
+               text: "Six little games are waiting. Winning is optional, smiling is compulsory.",
+               button: "Let the games begin" },
+    letter:  { icon: "&#9993;", title: "Sealed with love",
+               text: "The last gate hides the words I have wanted to tell you. Open it slowly.",
+               button: "Open my letter" }
+  };
+  const ALL_GATES_MSG = "You opened every gate. Every door leads back to me.";
+  const LABELS = { home: "Home", story: "Our Story", gallery: "Our Moments",
+                   reasons: "Reasons I Love You", games: "Birthday Games", letter: "A Letter For You" };
+
+  /* ---------- Helpers ---------- */
+  const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const make = (tag, cls, html) => {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html != null) e.innerHTML = html;
+    return e;
+  };
+  const playEntrance = container => {
+    [...container.children].forEach((c, i) => c.style.setProperty("--i", i));
+    container.classList.add("entering");
+    setTimeout(() => container.classList.remove("entering"), 2600);
+  };
+  const jumpTo = target => {
+    document.documentElement.style.scrollBehavior = "auto";
+    target.scrollIntoView();
+    document.documentElement.style.scrollBehavior = "";
+  };
+
+  /* ---------- Progress bar, toast, transition layer ---------- */
+  const progressBar = make("div"); progressBar.id = "progress-bar";
+  const toast = make("div"); toast.id = "toast";
+  const pt = make("div", "", '<div class="pt-heart">&#10084;</div><div class="pt-label"></div>');
+  pt.id = "page-transition";
+  document.body.append(progressBar, toast, pt);
+
+  let toastTimer;
+  const showToast = msg => {
+    toast.innerHTML = msg;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 4000);
+  };
+
+  addEventListener("scroll", () => {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    progressBar.style.width = (max > 0 ? (scrollY / max) * 100 : 0) + "%";
+  }, { passive: true });
+
+  /* ---------- Highlight active menu link ---------- */
+  const nav = $("#nav");
+  const navObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      $$("#nav a").forEach(a => {
+        const on = a.getAttribute("href") === "#" + e.target.id;
+        a.classList.toggle("active", on);
+        if (on) nav.scrollTo({ left: a.offsetLeft - nav.clientWidth / 2 + a.clientWidth / 2, behavior: "smooth" });
+      });
+    });
+  }, { rootMargin: "-45% 0px -45% 0px" });
+  $$("main > section").forEach(s => navObserver.observe(s));
+
+  /* ---------- Circle transition when using menu links ---------- */
+  let transitioning = false;
+  const goTo = (id, x, y) => {
+    const target = document.getElementById(id);
+    if (!target || transitioning) return;
+    if (REDUCED) { jumpTo(target); return; }
+    transitioning = true;
+    pt.style.setProperty("--x", x + "px");
+    pt.style.setProperty("--y", y + "px");
+    pt.querySelector(".pt-label").textContent = LABELS[id] || "";
+    pt.classList.add("in");
+    setTimeout(() => {
+      jumpTo(target);
+      pt.classList.add("out");
+      setTimeout(() => {
+        pt.style.transition = "none";
+        pt.classList.remove("in", "out");
+        void pt.offsetWidth;
+        pt.style.transition = "";
+        transitioning = false;
+      }, 550);
+    }, 900);
+  };
+  $$('a[href^="#"]').forEach(a => a.addEventListener("click", e => {
+    e.preventDefault();
+    goTo(a.getAttribute("href").slice(1), e.clientX || innerWidth / 2, e.clientY || innerHeight / 2);
+  }));
+
+  /* ---------- Heart dividers between sections ---------- */
+  $$("main > section").forEach((s, i) => {
+    if (i) s.before(make("div", "divider", "<span>&#10084;</span>"));
+  });
+
+  /* ---------- Gates ---------- */
+  const gateIds = Object.keys(GATES).filter(id => document.getElementById(id));
+  let gatesOpened = 0;
+
+  const garlandHTML = (count = 11) => {
+    let html = "";
+    for (let i = 0; i < count; i++) {
+      const a = Math.PI + (Math.PI * i) / (count - 1);
+      const left = 50 + Math.cos(a) * 54, top = 50 + Math.sin(a) * 54;
+      const color = i % 2 ? "var(--gold)" : "var(--rose)";
+      const size = i % 2 ? 1 : 1.35;
+      html += `<span style="left:${left}%;top:${top}%;color:${color};font-size:${size}rem;animation-delay:${-i * 0.3}s">&#10047;</span>`;
+    }
+    return html;
+  };
+
+  const heartBurst = (container, count = 18) => {
+    for (let i = 0; i < count; i++) {
+      const h = make("span", "burst-heart", Math.random() > 0.3 ? "&#10084;" : "&#10022;");
+      const ang = Math.random() * Math.PI * 2, dist = 90 + Math.random() * 130;
+      h.style.setProperty("--dx", Math.cos(ang) * dist + "px");
+      h.style.setProperty("--dy", Math.sin(ang) * dist + "px");
+      h.style.setProperty("--rot", Math.random() * 80 - 40 + "deg");
+      h.style.setProperty("--s", 14 + Math.random() * 18 + "px");
+      h.style.color = Math.random() > 0.5 ? "var(--rose)" : "var(--gold)";
+      container.appendChild(h);
+      setTimeout(() => h.remove(), 1300);
+    }
+  };
+
+  const openGate = (section, gate, content) => {
+    if (gate.classList.contains("opening")) return;
+    gate.classList.add("opening");
+    [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => ding(f), i * 140));
+    setTimeout(() => heartBurst(gate.querySelector(".gate-scene")), 450);
+    setTimeout(() => gate.classList.add("gone"), REDUCED ? 100 : 1800);
+    setTimeout(() => {
+      gate.remove();
+      section.classList.remove("gated");
+      jumpTo(section);
+      playEntrance(content);
+      if (++gatesOpened === gateIds.length) {
+        setTimeout(() => { showToast(ALL_GATES_MSG); burstConfetti(220); }, 1200);
+      }
+    }, REDUCED ? 300 : 2500);
+  };
+
+  gateIds.forEach((id, idx) => {
+    const section = document.getElementById(id), g = GATES[id];
+
+    // Move the existing section content into a wrapper that stays hidden until the gate opens
+    const content = make("div", "section-content");
+    while (section.firstChild) content.appendChild(section.firstChild);
+    section.appendChild(content);
+    section.classList.add("gated");
+
+    const gate = make("div", "gate", `
+      <div class="gate-scene">
+        <div class="gate-light"><div class="gate-peek">${g.icon}</div></div>
+        <div class="gate-door left"><span class="knob"></span></div>
+        <div class="gate-door right"><span class="knob"></span></div>
+        <div class="gate-frame"></div>
+        <div class="gate-garland">${garlandHTML()}</div>
+        <button class="gate-lock" aria-label="Open the gate">${g.icon}</button>
+      </div>
+      <div class="gate-text">
+        <p class="gate-eyebrow">Gate ${idx + 1} of ${gateIds.length}</p>
+        <h3 class="script">${g.title}</h3>
+        <p>${g.text}</p>
+        <button class="btn gate-btn">${g.button}</button>
+      </div>`);
+    section.insertBefore(gate, content);
+
+    const open = () => openGate(section, gate, content);
+    gate.querySelector(".gate-lock").onclick = open;
+    gate.querySelector(".gate-btn").onclick = open;
+  });
+
+  /* ---------- Home entrance animation after unlocking ---------- */
+  new MutationObserver((m, obs) => {
+    if (!document.body.classList.contains("locked")) {
+      playEntrance($("#home"));
+      obs.disconnect();
+    }
+  }).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+
+  /* ---------- Twinkling stars on lock screen ---------- */
+  for (let i = 0; i < 60; i++) {
+    const s = make("span", "star");
+    s.style.left = Math.random() * 100 + "%";
+    s.style.top = Math.random() * 100 + "%";
+    s.style.animationDuration = 2 + Math.random() * 3 + "s";
+    s.style.animationDelay = -Math.random() * 5 + "s";
+    $("#lock").appendChild(s);
+  }
+
+  /* ---------- Sparkle trail (laptop mouse only) ---------- */
+  if (!REDUCED) {
+    let lastSpark = 0;
+    addEventListener("pointermove", e => {
+      if (e.pointerType !== "mouse") return;
+      const now = performance.now();
+      if (now - lastSpark < 45) return;
+      lastSpark = now;
+      const s = make("span", "sparkle", Math.random() > 0.5 ? "&#10084;" : "&#10022;");
+      s.style.left = e.clientX + "px";
+      s.style.top = e.clientY + "px";
+      s.style.setProperty("--s", 8 + Math.random() * 10 + "px");
+      s.style.color = Math.random() > 0.5 ? "#e8467c" : "#d9a441";
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 900);
+    }, { passive: true });
+  }
+
+  /* ---------- Keyboard shortcuts ---------- */
+  addEventListener("keydown", e => {
+    const lbOpen = $("#lightbox").classList.contains("show");
+    if (e.key === "Escape") {
+      $("#lightbox").classList.remove("show");
+      $("#final-pop").classList.remove("show");
+    }
+    if (lbOpen && e.key === "ArrowLeft") openLightbox(lbIndex - 1);
+    if (lbOpen && e.key === "ArrowRight") openLightbox(lbIndex + 1);
+  });
+})();
