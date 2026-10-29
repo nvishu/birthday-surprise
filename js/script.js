@@ -755,7 +755,7 @@ $("#final-pop").onclick = () => $("#final-pop").classList.remove("show");
                text: "Behind this gate are the moments I never want to forget.",
                button: "Show me our moments" },
     reasons: { icon: "&#9733;", title: "I tried to count...",
-               text: "...all the reasons I love you. I ran out of cards before I ran out of reasons.",
+               text: "...all the reasons I like you. I ran out of cards before I ran out of reasons.",
                button: "Open the reasons" },
     games:   { icon: "&#10022;", title: "Ready to play, birthday girl?",
                text: "Six little games are waiting. Winning is optional, smiling is compulsory.",
