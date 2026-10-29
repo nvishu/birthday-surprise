@@ -189,3 +189,8 @@
   else new MutationObserver((m, o) => { if (!body.classList.contains("locked")) { o.disconnect(); runIntro(); } })
     .observe(body, { attributes: true, attributeFilter: ["class"] });
 })();
+
+/* Reasons: split each sentence into words so they can pop in one by one */
+$$(".reason-back p").forEach(p => {
+  p.innerHTML = p.textContent.trim().split(/\s+/).map((w, i) => `<span class="w" style="--w:${i}">${w}</span>`).join(" ");
+});
