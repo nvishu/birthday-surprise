@@ -10,7 +10,7 @@ const CONFIG = {
   turningAge: 31,
   metDate: "2026-01-01T00:00:00",      // CHANGE to the exact day she joined your project
 
-    photoCount: 42,                      // gallery checks pic1..pic42; missing ones are skipped
+    photoCount: 50,                      // gallery checks pic1..pic50; missing ones are skipped
   heroPhoto: "pic1",
   letterPhoto: "pic2",
   puzzlePhoto: "pic3",
@@ -766,7 +766,7 @@ $("#final-pop").onclick = () => $("#final-pop").classList.remove("show");
   };
   const ALL_GATES_MSG = "You opened every gate. Every door leads back to me.";
   const LABELS = { home: "Home", story: "Our Story", gallery: "Our Moments",
-                   reasons: "Reasons I Love You", games: "Birthday Games", letter: "A Letter For You" };
+                   reasons: "Reasons I Like You", games: "Birthday Games", letter: "A Letter For You" };
 
   /* ---------- Helpers ---------- */
   const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
